@@ -1,7 +1,7 @@
 var nconf = require('nconf')
 var bodyParser = require('body-parser')
 var dataUriToBuffer = require('data-uri-to-buffer')
-var glitch = require('glitch-jpg')
+var glitch = require('./glitch')
 var express = require('express')
 var app = express()
 
@@ -17,11 +17,15 @@ app.get('/', function(req, res) {
 
 app.post('/service', function(req, res) {
   var imgBuff = dataUriToBuffer(req.body.content.data)
-  var glitched = glitch(imgBuff)
-  var dataUri = 'data:' + imgBuff.type + ';base64,' + glitched.toString('base64')
-  req.body.content.data = dataUri
-  req.body.content.type = imgBuff.type
-  res.json(req.body)
+  glitch(imgBuff, function (err, gif) {
+    if (err) {
+      return res.error(err)
+    }
+    var dataUri = 'data:image/gif;base64,' + gif.toString('base64')
+    req.body.content.data = dataUri
+    req.body.content.type = "image/gif"
+    return res.json(req.body)
+  })
 })
 
 var port = nconf.get('port')

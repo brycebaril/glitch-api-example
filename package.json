@@ -13,9 +13,11 @@
     "data-uri-to-buffer": "0.0.3",
     "express": "^4.8.2",
     "glitch-jpg": "^1.0.3",
-    "nconf": "^0.6.9"
+    "glitcher": "^1.1.0",
+    "nconf": "^0.6.9",
+    "readimage": "^1.0.0",
+    "writegif": "^1.0.0"
   },
   "devDependencies": {
-    "nodemon": "^1.2.1"
   }
 }
