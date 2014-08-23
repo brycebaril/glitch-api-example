@@ -1,7 +1,7 @@
 var nconf = require('nconf')
 var bodyParser = require('body-parser')
 var dataUriToBuffer = require('data-uri-to-buffer')
-var glitch = require('./glitch')
+var glitch = require('./glitch').glitch
 var express = require('express')
 var app = express()
 
