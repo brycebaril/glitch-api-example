@@ -13,6 +13,13 @@ module.exports = {
   redblueshift: redblueshift,
   spookify: spookify,
   rbspook: rbspook,
+  grayscale: grayscale,
+  smear: smear,
+  smearchannel: smearchannel,
+  pixelshift: pixelshift,
+  rowslice: rowslice,
+  shadow: shadow,
+  aniglitch: aniglitch,
 }
 
 function random(image) {
@@ -108,6 +115,126 @@ function rbspook(image) {
     image.addFrame(redblue, 100)
     image.addFrame(image.frames[0].data, 50)
     image.addFrame(redblue, 80)
+  }
+}
+
+function grayscale(image) {
+  console.log("grayscale")
+  allFrames(glitcher.grayscale, image)
+}
+
+function smear(image) {
+  console.log("smear")
+  image.frames.forEach(function (frame) {
+    glitcher.smear(frame.data, (Math.random() * 13 + 4) | 0)
+  })
+}
+
+function smearchannel(image) {
+  console.log("smearchannel")
+  image.frames.forEach(function (frame) {
+    glitcher.smearChannel(frame.data, ((Math.random() * 3) | 0), (Math.random() * 17 + 4) | 0)
+  })
+}
+
+function pixelshift(image) {
+  console.log("pixelshift")
+  image.frames.forEach(function (frame) {
+    frame.data = glitcher.pixelshift(frame.data, ((Math.random() * image.width) | 0))
+  })
+}
+
+function rowslice(image) {
+  console.log("rowslice")
+  image.frames.forEach(function (frame) {
+    var box = image.height * image.width
+    var max = box * 4
+    var val = (Math.random() * (max - box / 5)) + box / 5
+    glitcher.rowslice(frame.data, val)
+  })
+}
+
+function clonechannel(image) {
+  console.log("clonechannel")
+  var dupe = null
+  if (image.frames.length > 1) {
+    for (var i = image.frames.length - 1; i > 0; i--) {
+      dupe = glitcher.copy(image.frames[i - 1].data)
+      glitcher.cloneChannel(dupe, image.frames[i].data, 0)
+      if (i - 2 >= 0) {
+        dupe = glitcher.copy(image.frames[i - 2].data)
+        glitcher.cloneChannel(dupe, image.frames[i].data, 1)
+      }
+      if (i - 3 >= 0) {
+        dupe = glitcher.copy(image.frames[i - 3].data)
+        glitcher.cloneChannel(dupe, image.frames[i].data, 2)
+      }
+    }
+  }
+  else {
+    dupe = glitcher.copy(image.frames[0].data)
+    glitcher.invertRGBA(dupe)
+    glitcher.cloneChannel(dupe, image.frames[0].data, Math.random() * 3 | 0)
+  }
+}
+
+function shadow(image) {
+  console.log("shadow")
+  var dupe = null
+  if (image.frames.length > 1) {
+    for (var i = image.frames.length - 1; i > 0; i--) {
+      dupe = glitcher.copy(image.frames[i - 1].data)
+      glitcher.cloneChannel(dupe, image.frames[i].data, 0)
+      if (i - 2 >= 0) {
+        dupe = glitcher.copy(image.frames[i - 2].data)
+        glitcher.cloneChannel(dupe, image.frames[i].data, 1)
+      }
+      if (i - 3 >= 0) {
+        dupe = glitcher.copy(image.frames[i - 3].data)
+        glitcher.cloneChannel(dupe, image.frames[i].data, 2)
+      }
+    }
+  }
+  else {
+    dupe = glitcher.copy(image.frames[0].data)
+    glitcher.invertRGBA(dupe)
+    glitcher.reverseRGBA(dupe)
+    glitcher.cloneChannel(dupe, image.frames[0].data, Math.random() * 3 | 0)
+  }
+}
+
+function ggllitch(image) {
+  var i = {
+    height: image.height,
+    width: image.width,
+    frames: [{data: glitcher.copy(image.frames[0].data)}]
+  }
+  i.addFrame = function () {}
+  random(i)
+  return i.frames[0].data
+}
+
+function aniglitch(image) {
+  console.log("aniglitch")
+  if (image.frames.length > 1) {
+    for (var i = image.frames.length - 1; i > 0; i--) {
+      dupe = glitcher.copy(image.frames[i - 1].data)
+      glitcher.cloneChannel(dupe, image.frames[i].data, 0)
+      if (i - 2 >= 0) {
+        dupe = glitcher.copy(image.frames[i - 2].data)
+        glitcher.cloneChannel(dupe, image.frames[i].data, 1)
+      }
+      if (i - 3 >= 0) {
+        dupe = glitcher.copy(image.frames[i - 3].data)
+        glitcher.cloneChannel(dupe, image.frames[i].data, 2)
+      }
+    }
+  }
+  else {
+    glitcher.clampColors(image.frames[0].data, 64)
+    image.frames[0].delay = 1200
+    image.addFrame(ggllitch(image), 150)
+    image.addFrame(ggllitch(image), 150)
   }
 }
 

@@ -20,7 +20,7 @@ function runGlitch(algo) {
   readimage(input, function (err, image) {
     glitch[algo](image)
     writegif(image, function (err, gif) {
-      fs.writeFileSync(algo + ".gif", gif)
+      fs.writeFileSync("output/" + algo + ".gif", gif)
     })
   })
 }

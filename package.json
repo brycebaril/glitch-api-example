@@ -13,7 +13,7 @@
     "data-uri-to-buffer": "0.0.3",
     "express": "^4.8.5",
     "glitch-jpg": "^1.0.4",
-    "glitcher": "^1.4.1",
+    "glitcher": "^1.5.0",
     "nconf": "^0.6.9",
     "readimage": "^1.0.0",
     "writegif": "^1.0.4"
