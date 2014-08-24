@@ -1,42 +1,66 @@
-var readimage = require("readimage")
-var writegif = require("writegif")
 var glitcher = require("glitcher")
 
-module.exports.glitch = function (buffer, callback) {
-  var algs = [clamp, ghost, spookify]
-  glitch(algs[(Math.random() * algs.length) | 0], buffer, callback)
-}
-module.exports.spookify = function (buffer, callback) {
-  glitch(spookify, buffer, callback)
-}
-module.exports.clamp = function (buffer, callback) {
-  glitch(clamp, buffer, callback)
-}
-module.exports.ghost = function (buffer, callback) {
-  glitch(ghost, buffer, callback)
+var clampcolors = 32
+
+module.exports = {
+  random: random,
+  clamp: clamp,
+  glitchclamp: glitchclamp,
+  ghost: ghost,
+  glitchghost: glitchghost,
+  solarize: solarize,
+  flip: flip,
+  redblueshift: redblueshift,
+  spookify: spookify,
+  rbspook: rbspook,
 }
 
-function glitch(alg, buffer, callback) {
-  readimage(buffer, function (err, image) {
-    alg(image, callback)
-  })
+function random(image) {
+  console.log("random")
+  var keys = Object.keys(module.exports)
+  var algo = keys[(Math.random() * keys.length) | 0]
+  module.exports[algo](image)
 }
 
-function clamp(image, callback) {
+function clamp(image) {
+  console.log("clamp")
+  allFrames(glitcher.clampColors, image)
+}
+
+function glitchclamp(image) {
+  console.log("glitchclamp")
+  allFrames(glitcher.glitchClamp, image)
+}
+
+function ghost(image) {
+  console.log("ghost")
+  allFrames(glitcher.ghostColors, image)
+}
+
+function glitchghost(image) {
+  console.log("glitchghost")
+  allFrames(glitcher.glitchGhost, image)
+}
+
+function solarize(image) {
+  console.log("solarize")
+  allFrames(glitcher.invertRGBA, image)
+}
+
+function flip(image) {
+  console.log("flip")
+  allFrames(glitcher.reverseRGBA, image)
+}
+
+function redblueshift(image) {
+  console.log("redblueshift")
   image.frames.forEach(function (frame) {
-    glitcher.clampColors(frame.data, 32)
+    frame.data = glitcher.redBlueOverlay(frame.data)
   })
-  writegif(image, callback)
 }
 
-function ghost(image, callback) {
-  image.frames.forEach(function (frame) {
-    glitcher.ghostColors(frame.data, 32)
-  })
-  writegif(image, callback)
-}
-
-function spookify(image, callback) {
+function spookify(image) {
+  console.log("spookify")
   if (image.frames.length > 1) {
     image.frames.forEach(function (frame, i) {
       frame.data = glitcher.redBlueOverlay(frame.data)
@@ -61,5 +85,34 @@ function spookify(image, callback) {
     var redblue2 = glitcher.redBlueOverlay(image.frames[0].data)
     image.addFrame(redblue2, 200)
   }
-  writegif(image, callback)
+}
+
+function rbspook(image) {
+  console.log("rbspook")
+  if (image.frames.length > 1) {
+    image.frames.forEach(function (frame, i) {
+      frame.data = glitcher.redBlueOverlay(frame.data)
+      if (i % 5 == 0) {
+        glitcher.invertRGBA(frame.data)
+      }
+      if (i % 7 == 0) {
+        glitcher.reverseRGBA(frame.data)
+      }
+    })
+  }
+  else {
+    glitcher.clampColors(image.frames[0].data, 64)
+    var copy = glitcher.copy(image.frames[0].data)
+    image.frames[0].delay = 1200
+    var redblue = glitcher.redBlueOverlay(image.frames[0].data)
+    image.addFrame(redblue, 100)
+    image.addFrame(image.frames[0].data, 50)
+    image.addFrame(redblue, 80)
+  }
+}
+
+function allFrames(algo, image) {
+  image.frames.forEach(function (frame) {
+    algo(frame.data, clampcolors)
+  })
 }
