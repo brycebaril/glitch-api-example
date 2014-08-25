@@ -40,8 +40,8 @@ function glitchRoute(req, res) {
     alg = "random"
   }
   prepImage(req.body.content.data, function (err, image) {
-    if ((image.height * image.width * image.frames.length) > 360000) {
-      console.log("Aborting! %s * %s * %s = %s > 360000", image.height, image.width, image.frames.length, 360000)
+    if ((image.height * image.width * image.frames.length) > 500000) {
+      console.log("Aborting! %s * %s * %s = %s > 360000", image.height, image.width, image.frames.length, image.height * image.width * image.frames.length)
       return sendErr(req, res)
     }
     if (err) {
