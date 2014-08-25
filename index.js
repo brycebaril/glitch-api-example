@@ -50,7 +50,7 @@ function glitchRoute(req, res) {
       return sendErr(req, res, new Error("oversized"))
     }
     if (err) {
-      return sendErr(req, res, err
+      return sendErr(req, res, err)
     }
     glitch[alg](image)
     writegif(image, function (err, gif) {
