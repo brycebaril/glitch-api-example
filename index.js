@@ -26,6 +26,7 @@ function sendErr(req, res, err) {
 }
 
 app.get('/', function(req, res) {
+  console.log("serving /")
   res.sendFile( __dirname + '/index.html')
 })
 
@@ -41,6 +42,7 @@ function prepImage(uri, callback) {
 function glitchRoute(req, res) {
   var alg = req.params.glitch
   if (alg == null || !glitch[alg]) {
+    console.log("no/unmaged alg %s", alg)
     alg = "random"
   }
   prepImage(req.body.content.data, function (err, image) {
