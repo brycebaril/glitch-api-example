@@ -15,7 +15,11 @@ app.use(express.static(__dirname + '/public'))
 var err404 = require("fs").readFileSync("public/img/404.gif")
 var errUri = "data:image/gif;base64," + err404.toString("base64")
 
-function sendErr(req, res) {
+function sendErr(req, res, err) {
+  if (err) {
+    console.log(err)
+    console.log(err.stack)
+  }
   req.body.content.data = errUri
   req.body.content.type = "image/gif"
   return res.json(req.body)
@@ -43,15 +47,15 @@ function glitchRoute(req, res) {
     console.log("Image: %s h %s w %s frames", image.height, image.width, image.frames.length)
     if ((image.height * image.width) > 360000) {
       console.log("Aborting! %s * %s = %s > 360000", image.height, image.width, image.height * image.width)
-      return sendErr(req, res)
+      return sendErr(req, res, new Error("oversized"))
     }
     if (err) {
-      return sendErr(req, res)
+      return sendErr(req, res, err
     }
     glitch[alg](image)
     writegif(image, function (err, gif) {
       if (err) {
-        return sendErr(req, res)
+        return sendErr(req, res, err)
       }
       var dataUri = 'data:image/gif;base64,' + gif.toString('base64')
       req.body.content.data = dataUri
@@ -65,7 +69,7 @@ app.post("/:glitch/service", glitchRoute)
 app.post("/service", glitchRoute)
 
 app.use(function(err, req, res, next){
-  return sendErr(req, res)
+  return sendErr(req, res, err)
 });
 
 var port = nconf.get('port')
