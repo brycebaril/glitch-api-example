@@ -9,8 +9,17 @@ var app = express()
 
 nconf.argv().env().file({ file: 'local.json'})
 
-app.use(bodyParser.json({limit: '2mb'}))
+app.use(bodyParser.json({limit: '5mb'}))
 app.use(express.static(__dirname + '/public'))
+
+var err404 = require("fs").readFileSync("public/img/404.gif")
+var errUri = "data:image/gif;base64," + err404.toString("base64")
+
+function sendErr(req, res) {
+  req.body.content.data = errUri
+  req.body.content.type = "image/gif"
+  return res.json(req.body)
+}
 
 app.get('/', function(req, res) {
   res.sendFile( __dirname + '/index.html')
@@ -31,11 +40,18 @@ function glitchRoute(req, res) {
     alg = "random"
   }
   prepImage(req.body.content.data, function (err, image) {
+    if ((image.height * image.width * image.frames.length) > 360000) {
+      console.log("Aborting! %s * %s * %s = %s > 360000", image.height, image.width, image.frames.length, 360000)
+      return sendErr(req, res)
+    }
     if (err) {
-      return res.error(err)
+      return sendErr(req, res)
     }
     glitch[alg](image)
     writegif(image, function (err, gif) {
+      if (err) {
+        return sendErr(req, res)
+      }
       var dataUri = 'data:image/gif;base64,' + gif.toString('base64')
       req.body.content.data = dataUri
       req.body.content.type = "image/gif"
@@ -46,6 +62,10 @@ function glitchRoute(req, res) {
 
 app.post("/:glitch/service", glitchRoute)
 app.post("/service", glitchRoute)
+
+app.use(function(err, req, res, next){
+  return sendErr(req, res)
+});
 
 var port = nconf.get('port')
 app.listen(port)
