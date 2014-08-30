@@ -5,6 +5,7 @@ var readimage = require("readimage")
 var writegif = require("writegif")
 var glitch = require('./glitch')
 var express = require('express')
+var fs = require("fs")
 var app = express()
 
 nconf.argv().env().file({ file: 'local.json'})
@@ -12,16 +13,31 @@ nconf.argv().env().file({ file: 'local.json'})
 app.use(bodyParser.json({limit: '5mb'}))
 app.use(express.static(__dirname + '/public'))
 
-var err404 = require("fs").readFileSync("public/img/404.gif")
-var errUri = "data:image/gif;base64," + err404.toString("base64")
+function toUri(gif) {
+  return "data:image/gif;base64," + gif.toString("base64")
+}
 
-function sendErr(req, res, err) {
+//var errUri = toUri(fs.readFileSync("public/img/404.gif"))
+var eTooBig = toUri(fs.readFileSync("public/img/e_toobig.gif"))
+var eTooMany = toUri(fs.readFileSync("public/img/e_toomany.gif"))
+var eTooMuch = toUri(fs.readFileSync("public/img/e_toomuch.gif"))
+
+
+function sendErr(req, res, err, image) {
   if (err) {
     console.log(err)
     console.log(err.stack)
   }
-  req.body.content.data = errUri
+  if (image) {
+    req.body.content.data = err.image
+  }
+  else {
+    req.body.content.data = eTooMuch
+  }
   req.body.content.type = "image/gif"
+  if (err.image) {
+    return res.json()
+  }
   return res.json(req.body)
 }
 
@@ -52,7 +68,11 @@ function glitchRoute(req, res) {
     console.log("Image: %s h %s w %s frames", image.height, image.width, image.frames.length)
     if ((image.height * image.width) > 360000) {
       console.log("Aborting! %s * %s = %s > 360000", image.height, image.width, image.height * image.width)
-      return sendErr(req, res, new Error("oversized"))
+      return sendErr(req, res, new Error("oversized"), eTooBig)
+    }
+    if (image.frames.length > 60) {
+      console.log("Aborting! %s > 60", image.frames.length)
+      return sendErr(req, res, new Error("too many frames"), eTooMany)
     }
     glitch[alg](image)
     writegif(image, function (err, gif) {
