@@ -28,8 +28,11 @@ function sendErr(req, res, err, image) {
     console.log(err)
     console.log(err.stack)
   }
+  if (req.body.content == null) {
+    req.body.content = {}
+  }
   if (image) {
-    req.body.content.data = err.image
+    req.body.content.data = image
   }
   else {
     req.body.content.data = eTooMuch
