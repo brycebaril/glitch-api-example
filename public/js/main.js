@@ -1,6 +1,7 @@
 ;(function(){
   var file = document.querySelector('input[type=file]')
   var submitBtn = document.querySelector('.submit')
+  var glitch = document.getElementById('filter')
   var img = document.createElement('img')
   var payload = {
     content: {},
@@ -17,7 +18,7 @@
         img.src = parsed.content.data
       }
     }
-    xhr.open('POST', '/service')
+    xhr.open('POST', glitch.value + '/service')
     xhr.setRequestHeader('Content-Type', 'application/json')
     if (payload.content.data) {
       xhr.send(JSON.stringify(payload))

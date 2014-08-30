@@ -1,6 +1,6 @@
 var glitcher = require("glitcher")
 
-var clampcolors = 32
+var clampcolors = 64
 
 module.exports = {
   random: random,
@@ -8,6 +8,7 @@ module.exports = {
   glitchclamp: glitchclamp,
   ghost: ghost,
   glitchghost: glitchghost,
+  superghost: superghost,
   solarize: solarize,
   flip: flip,
   redblueshift: redblueshift,
@@ -20,6 +21,7 @@ module.exports = {
   rowslice: rowslice,
   shadow: shadow,
   aniglitch: aniglitch,
+  interleave: interleave,
 }
 
 function random(image) {
@@ -49,6 +51,11 @@ function glitchghost(image) {
   allFrames(glitcher.glitchGhost, image)
 }
 
+function superghost(image) {
+  console.log("superghost")
+  allFrames(glitcher.superGhost, image)
+}
+
 function solarize(image) {
   console.log("solarize")
   allFrames(glitcher.invertRGBA, image)
@@ -61,9 +68,7 @@ function flip(image) {
 
 function redblueshift(image) {
   console.log("redblueshift")
-  image.frames.forEach(function (frame) {
-    frame.data = glitcher.redBlueOverlay(frame.data)
-  })
+  allFrames(glitcher.redBlueOverlay, image)
 }
 
 function spookify(image) {
@@ -123,24 +128,32 @@ function grayscale(image) {
   allFrames(glitcher.grayscale, image)
 }
 
+function _smear(rgba) {
+  glitcher.smear(rgba, (Math.random() * 13 + 4) | 0)
+}
+
 function smear(image) {
   console.log("smear")
   image.frames.forEach(function (frame) {
-    glitcher.smear(frame.data, (Math.random() * 13 + 4) | 0)
+    _smear(frame.data)
   })
+}
+
+function _smearchannel(rgba) {
+  glitcher.smearChannel(rgba, ((Math.random() * 3) | 0), (Math.random() * 17 + 4) | 0)
 }
 
 function smearchannel(image) {
   console.log("smearchannel")
   image.frames.forEach(function (frame) {
-    glitcher.smearChannel(frame.data, ((Math.random() * 3) | 0), (Math.random() * 17 + 4) | 0)
+    _smearchannel(frame.data)
   })
 }
 
 function pixelshift(image) {
   console.log("pixelshift")
   image.frames.forEach(function (frame) {
-    frame.data = glitcher.pixelshift(frame.data, ((Math.random() * image.width) | 0))
+    glitcher.pixelshift(frame.data, ((Math.random() * image.width) | 0))
   })
 }
 
@@ -235,6 +248,43 @@ function aniglitch(image) {
     image.frames[0].delay = 1200
     image.addFrame(ggllitch(image), 150)
     image.addFrame(ggllitch(image), 150)
+  }
+}
+
+function interleave(image) {
+  console.log("interleave")
+  var filters = [
+    glitcher.invertRGBA,
+    glitcher.reverseRGBA,
+    _smear,
+    _smearchannel,
+    glitcher.ghostColors,
+    glitcher.superGhost,
+    glitcher.glitchClamp,
+    glitcher.grayscale,
+    function (rgba) {
+      glitcher.pixelshift(rgba, ((Math.random() * image.width) | 0))
+    },
+    function (rgba) {
+      var box = image.height * image.width
+      var max = box * 4
+      var val = (Math.random() * (max - box / 5)) + box / 5
+      glitcher.rowslice(rgba, val)
+    }
+  ]
+
+  if (image.frames.length > 1) {
+    for (var i = image.frames.length - 1; i > 0; i--) {
+      var alg = filters[(Math.random() * filters.length) | 0]
+      var idx = (i > 1) ? i - 1 : i
+      var dupe = alg(glitcher.copy(image.frames[idx].data))
+      glitcher.interleave(image.width, image.frames[i].data, dupe)
+    }
+  }
+  else {
+    var alg = filters[(Math.random() * filters.length) | 0]
+    var dupe = alg(glitcher.copy(image.frames[0].data))
+    glitcher.interleave(image.width, image.frames[0].data, dupe)
   }
 }
 
