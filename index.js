@@ -11,7 +11,7 @@ var app = express()
 nconf.argv().env().file({ file: 'local.json'})
 
 app.use(bodyParser.json({limit: '5mb'}))
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname + '/public', {maxAge: 86400000}))
 
 function toUri(gif) {
   return "data:image/gif;base64," + gif.toString("base64")
