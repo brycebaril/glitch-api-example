@@ -22,6 +22,7 @@ module.exports = {
   shadow: shadow,
   aniglitch: aniglitch,
   interleave: interleave,
+  rainbow: rainbow,
 }
 
 function random(image) {
@@ -285,6 +286,16 @@ function interleave(image) {
     var alg = filters[(Math.random() * filters.length) | 0]
     var dupe = alg(glitcher.copy(image.frames[0].data))
     glitcher.interleave(image.width, image.frames[0].data, dupe)
+  }
+}
+
+function rainbow(image) {
+  console.log("rainbow")
+  if (image.frames.length == 1) {
+    glitcher.rainbowClamp(image.frames[0].data)
+  }
+  else {
+    glitcher.rainbow(image.frames)
   }
 }
 

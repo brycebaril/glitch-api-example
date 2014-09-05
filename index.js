@@ -68,7 +68,8 @@ function glitchRoute(req, res) {
     if (err) {
       return sendErr(req, res, err)
     }
-    console.log("Image: %s h %s w %s frames", image.height, image.width, image.frames.length)
+    var start = Date.now()
+    console.log("%s Image: %s h %s w %s frames", start, image.height, image.width, image.frames.length)
     if ((image.height * image.width) > 360000) {
       console.log("Aborting! %s * %s = %s > 360000", image.height, image.width, image.height * image.width)
       return sendErr(req, res, new Error("oversized"), eTooBig)
@@ -85,6 +86,8 @@ function glitchRoute(req, res) {
       var dataUri = 'data:image/gif;base64,' + gif.toString('base64')
       req.body.content.data = dataUri
       req.body.content.type = "image/gif"
+      var end = Date.now()
+      console.log("Done: %s (%s)", end, end - start)
       return res.json(req.body)
     })
   })

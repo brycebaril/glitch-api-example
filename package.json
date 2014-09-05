@@ -9,14 +9,14 @@
   "author": "",
   "license": "GPL3",
   "dependencies": {
-    "body-parser": "^1.6.7",
+    "body-parser": "^1.7.0",
     "cluster-master": "^0.2.0",
     "data-uri-to-buffer": "0.0.3",
     "express": "^4.8.7",
     "glitch-jpg": "^1.0.4",
-    "glitcher": "^1.7.0",
+    "glitcher": "^1.8.0",
     "nconf": "^0.6.9",
-    "readimage": "^1.1.0",
+    "readimage": "^1.1.1",
     "writegif": "^1.1.0"
   },
   "devDependencies": {}
