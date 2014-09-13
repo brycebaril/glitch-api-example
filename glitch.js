@@ -1,6 +1,7 @@
 var glitcher = require("glitcher")
 
 var clampcolors = 64
+var thresh = 25
 
 module.exports = {
   random: random,
@@ -301,6 +302,6 @@ function rainbow(image) {
 
 function allFrames(algo, image) {
   image.frames.forEach(function (frame) {
-    algo(frame.data, clampcolors)
+    algo(frame.data, clampcolors, thresh)
   })
 }
