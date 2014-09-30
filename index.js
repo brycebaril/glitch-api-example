@@ -70,8 +70,8 @@ function glitchRoute(req, res) {
     }
     var start = Date.now()
     console.log("%s Image: %s h %s w %s frames", start, image.height, image.width, image.frames.length)
-    if ((image.height * image.width) > 360000) {
-      console.log("Aborting! %s * %s = %s > 360000", image.height, image.width, image.height * image.width)
+    if ((image.height * image.width) > 1048576) {
+      console.log("Aborting! %s * %s = %s > 1048576", image.height, image.width, image.height * image.width)
       return sendErr(req, res, new Error("oversized"), eTooBig)
     }
     if (image.frames.length > 60) {
