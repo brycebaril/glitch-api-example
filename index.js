@@ -38,9 +38,11 @@ function sendErr(req, res, err, image) {
     req.body.content.data = eTooMuch
   }
   req.body.content.type = "image/gif"
-  if (err.image) {
-    return res.json()
+  if (req.body.meta == null) {
+    req.body.meta = {}
   }
+  req.body.meta.error = "Processing error: " + err.message
+  console.log(req.body)
   return res.json(req.body)
 }
 
@@ -72,11 +74,11 @@ function glitchRoute(req, res) {
     console.log("%s Image: %s h %s w %s frames", start, image.height, image.width, image.frames.length)
     if ((image.height * image.width) > 1048576) {
       console.log("Aborting! %s * %s = %s > 1048576", image.height, image.width, image.height * image.width)
-      return sendErr(req, res, new Error("oversized"), eTooBig)
+      return sendErr(req, res, new Error("oversized > 1048576 pixels"), eTooBig)
     }
     if (image.frames.length > 60) {
       console.log("Aborting! %s > 60", image.frames.length)
-      return sendErr(req, res, new Error("too many frames"), eTooMany)
+      return sendErr(req, res, new Error("too many frames (max 60)"), eTooMany)
     }
     glitch[alg](image)
     writegif(image, function (err, gif) {
