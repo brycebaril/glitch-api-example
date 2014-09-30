@@ -42,7 +42,6 @@ function sendErr(req, res, err, image) {
     req.body.meta = {}
   }
   req.body.meta.error = "Processing error: " + err.message
-  console.log(req.body)
   return res.json(req.body)
 }
 
